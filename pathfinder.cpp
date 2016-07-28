@@ -38,14 +38,17 @@ public:
         const int _maxDist):
         Map(_pMap, _nWidth, _nHeight), maxDist(_maxDist) {
         pMarkedMap = (int*) calloc(nSize, sizeof(int));
-        pEquidistantSet = (int*) calloc(_maxDist, sizeof(int));
+        pEquidistantSet = (int*) calloc(nSize, sizeof(int));
         pPrev = pEquidistantSet;
         pEnd = pEquidistantSet;
     }
 
     ~MarkedMap() {
+        printf("d1\n");
         free(pEquidistantSet);
+        printf("d2\n");
         free(pMarkedMap);
+        printf("d3\n");
     }
     
     void setEndpoints(const int nStartX, const int nStartY, const int nTargetX, const int nTargetY) {
@@ -64,6 +67,8 @@ public:
         
         if (pMap[pos] == 0) return;
         if (pMarkedMap[pos] != 0) return;
+        
+        if (dist(pos, nTarget) + d > maxDist) return;
         
         if (verbose) printf("marked at %i\n", pEnd - pEquidistantSet);
         pMarkedMap[pos] = d;
@@ -123,7 +128,7 @@ public:
         
         int pos = nTarget;
         pOutBuffer[--d] = pos;
-        while (d >= 0) {
+        while (d > 0) {
             pos = findNeighbor(pos, d);
             printf("fillPath: pos = %i, d = %i\n", pos, d);
             pOutBuffer[--d] = pos;
@@ -143,10 +148,11 @@ int FindPath(const int nStartX, const int nStartY,
     map.setEndpoints(nStartX, nStartY, nTargetX, nTargetY);
     
     int d;
-    for (d = 2; d < nOutBufferSize; d++) {
+    for (d = 2; d <= nOutBufferSize; d++) {
         int isAdded = map.addDist(d);
         if (map.isTargetFound) {
             map.fillPath(pOutBuffer, d);
+            printf("d = %i\n", d);
             return d;            
         }
         if (!isAdded) return -1;

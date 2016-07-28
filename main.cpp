@@ -80,7 +80,7 @@ void test3() {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     };
     int pOutBuffer[100];
-    int len = findPathVerbose(0, 0, 9, 6, pMap, mapWidth, mapHeight, pOutBuffer, 100);
+    int len = findPathVerbose(0, 0, 9, 6, pMap, mapWidth, mapHeight, pOutBuffer, 19);
 
     assert(len == 19);
     assert(pOutBuffer[3] == 31);    
