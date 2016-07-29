@@ -1,2 +1,2 @@
 # findpath
-Implements a pathfinding algorithm
+Implements pathfinding algorithm А
