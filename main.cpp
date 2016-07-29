@@ -23,7 +23,8 @@ static int findPathVerbose(const int nStartX, const int nStartY,
     printf("Path length = %d\n", len);
     
     int i, j, k;
-        
+
+    if (len > 1000) return len;
     if (len > 1) {
         for (k = 0; k < len; k++) printf("p[%i] = %i\n", k, pOutBuffer[k]);
     }
@@ -124,8 +125,8 @@ int main()
     test2();
     test3();
     test4(20, 20, 8, 34);
-    test4(1000, 1000, 3, 39994);
-//    test4(20000, 20000, 3, 39994);
+    test4(1000, 1000, 3, 1994);
+    test4(20000, 20000, 3, 39994);
     return 0;
 }
 
