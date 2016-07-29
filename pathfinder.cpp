@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern int verbose;
+int debug = 0;
 
 class Map {
 protected:
@@ -44,11 +44,8 @@ public:
     }
 
     ~MarkedMap() {
-        printf("d1\n");
         free(pEquidistantSet);
-        printf("d2\n");
         free(pMarkedMap);
-        printf("d3\n");
     }
     
     void setEndpoints(const int nStartX, const int nStartY, const int nTargetX, const int nTargetY) {
@@ -61,7 +58,7 @@ public:
     }
     
     void mark(const int pos, const int d) {
-        if (verbose) {
+        if (debug) {
             printf("pos = %i, d = %i\n", pos, d);
         }
         
@@ -70,7 +67,7 @@ public:
         
         if (dist(pos, nTarget) + d > maxDist) return;
         
-        if (verbose) printf("marked at %i\n", pEnd - pEquidistantSet);
+        if (debug) printf("marked at %i\n", pEnd - pEquidistantSet);
         pMarkedMap[pos] = d;
         *pEnd = pos;
         pEnd++;
@@ -104,7 +101,7 @@ public:
         for (; (pCur < pNext) && !isTargetFound; pCur++) {
             markNeighbors(*pCur, d);
         }
-        if (verbose) {
+        if (debug) {
             int i, j, k;
             for (j = 0, k = 0; j < nHeight; j++) {
                 for(i = 0; i < nWidth; i++) printf("%3d", pMarkedMap[k++]);
@@ -118,7 +115,7 @@ public:
     }
     
     void fillPath(int* pOutBuffer, int d) {
-        if (verbose) {
+        if (debug) {
             int i, j, k;
             for (j = 0, k = 0; j < nHeight; j++) {
                 for(i = 0; i < nWidth; i++) printf("%2d", pMarkedMap[k++]);
@@ -130,7 +127,6 @@ public:
         pOutBuffer[--d] = pos;
         while (d > 0) {
             pos = findNeighbor(pos, d);
-            printf("fillPath: pos = %i, d = %i\n", pos, d);
             pOutBuffer[--d] = pos;
         }
     }
@@ -143,7 +139,6 @@ int FindPath(const int nStartX, const int nStartY,
     const unsigned char* pMap, const int nMapWidth, const int nMapHeight,
     int* pOutBuffer, const int nOutBufferSize) {
                  
-    int equidistantSet[nOutBufferSize];
     MarkedMap map(pMap, nMapWidth, nMapHeight, nOutBufferSize);
     map.setEndpoints(nStartX, nStartY, nTargetX, nTargetY);
     
@@ -152,7 +147,6 @@ int FindPath(const int nStartX, const int nStartY,
         int isAdded = map.addDist(d);
         if (map.isTargetFound) {
             map.fillPath(pOutBuffer, d);
-            printf("d = %i\n", d);
             return d;            
         }
         if (!isAdded) return -1;
