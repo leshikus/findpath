@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int debug = 0;
+const int DEBUG = 0;
+const int STATS = 1;
 
 class Map {
 protected:
     const unsigned char* pMap;
-    const int nWidth, nHeight, nSize;
 public:
+    const int nWidth, nHeight, nSize;
+
     Map(const unsigned char* _pMap, const int _nWidth, const int _nHeight) :
         pMap(_pMap), nWidth(_nWidth), nHeight(_nHeight), nSize(_nWidth * _nHeight) {
     }
@@ -58,7 +60,7 @@ public:
     }
     
     void mark(const int pos, const int d) {
-        if (debug) {
+        if (DEBUG) {
             printf("pos = %i, d = %i\n", pos, d);
         }
         
@@ -67,7 +69,7 @@ public:
         
         if (dist(pos, nTarget) + d > maxDist) return;
         
-        if (debug) printf("marked at %i\n", pEnd - pEquidistantSet);
+        if (DEBUG) printf("marked at %i\n", pEnd - pEquidistantSet);
         pMarkedMap[pos] = d;
         *pEnd = pos;
         pEnd++;
@@ -101,7 +103,7 @@ public:
         for (; (pCur < pNext) && !isTargetFound; pCur++) {
             markNeighbors(*pCur, d);
         }
-        if (debug) {
+        if (DEBUG) {
             int i, j, k;
             for (j = 0, k = 0; j < nHeight; j++) {
                 for(i = 0; i < nWidth; i++) printf("%3d", pMarkedMap[k++]);
@@ -115,7 +117,7 @@ public:
     }
     
     void fillPath(int* pOutBuffer, int d) {
-        if (debug) {
+        if (DEBUG) {
             int i, j, k;
             for (j = 0, k = 0; j < nHeight; j++) {
                 for(i = 0; i < nWidth; i++) printf("%2d", pMarkedMap[k++]);
@@ -131,6 +133,9 @@ public:
         }
     }
     
+    int queueSize() {
+        return pEnd - pEquidistantSet;
+    }
 };
 
 
@@ -142,14 +147,17 @@ int FindPath(const int nStartX, const int nStartY,
     MarkedMap map(pMap, nMapWidth, nMapHeight, nOutBufferSize);
     map.setEndpoints(nStartX, nStartY, nTargetX, nTargetY);
     
-    int d;
-    for (d = 2; d <= nOutBufferSize; d++) {
+    int d, res = -1;
+    for (d = 2; d <= map.nWidth + map.nHeight; d++) {
         int isAdded = map.addDist(d);
         if (map.isTargetFound) {
-            map.fillPath(pOutBuffer, d);
-            return d;            
+            if (d <= nOutBufferSize) map.fillPath(pOutBuffer, d);
+            res = d;
+            break;
         }
-        if (!isAdded) return -1;
+        if (!isAdded) break;
     }
-    return -1;
+
+    if (STATS) printf("Nodes: %i\n", map.queueSize());
+    return res;
 }
