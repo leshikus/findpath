@@ -1,44 +1,36 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
+#include "findpath.h"
 
-int verbose = 1;
-
-extern int FindPath(const int nStartX, const int nStartY,
-    const int nTargetX, const int nTargetY,
-    const unsigned char* pMap, const int nMapWidth, const int nMapHeight,
-    int* pOutBuffer, const int nOutBufferSize);
+const int VERBOSE = 1;
+const int MAX_DEBUG_BUFFER = 40;
 
 static int findPathVerbose(const int nStartX, const int nStartY,
     const int nTargetX, const int nTargetY,
     unsigned char* pMap, const int nMapWidth, const int nMapHeight,
     int* pOutBuffer, const int nOutBufferSize) {
+
+    int i, j, k;    
+    if (VERBOSE && (nMapWidth <= MAX_DEBUG_WIDTH)) {
+        for (j = 0, k = 0; j < nMapHeight; j++) {
+            for(i = 0; i < nMapWidth; i++) printf("%d", pMap[k++]);
+            printf("\n");
+        }
+    }
+    
         
     int len = FindPath(nStartX, nStartY, nTargetX, nTargetY,
         pMap, nMapWidth, nMapHeight,
         pOutBuffer, nOutBufferSize);
         
-    if (!verbose) return len;
+    if (!VERBOSE) return len;
     
-    printf("Path length = %d\n", len);
-    
-    int i, j, k;
-
-    if (len > 1000) return len;
-    if (len > 1) {
+    printf("Path length = %d\n", len);            
+    if ((len > 0) && (len <= nOutBufferSize) && (len <= MAX_DEBUG_BUFFER)) {
         for (k = 0; k < len; k++) printf("p[%i] = %i\n", k, pOutBuffer[k]);
     }
-    
-//    pMap[nStartX + nMapWidth * nStartY] = 2;
-//    pMap[nTargetX + nMapWidth * nTargetY] = 2;
-//    if (len > 1) for (k = 0; k < len - 1; k++) pMap[pOutBuffer[k]] = 2;
 
-    if (nMapWidth > 80) return len;
-    for (j = 0, k = 0; j < nMapHeight; j++) {
-        for(i = 0; i < nMapWidth; i++) printf("%d", pMap[k++]);
-        printf("\n");
-    }
-    
     return len;
 }
 
@@ -94,8 +86,19 @@ void test3() {
     assert(pOutBuffer[13] == 86);
     assert(pOutBuffer[14] == 87);
     assert(pOutBuffer[15] == 88);
-    assert(pOutBuffer[16] == 78);
     assert(pOutBuffer[18] == 69);  
+}
+
+int rand(int m) {
+    static int r;
+    
+    if (m == 0) {
+        r = 0;
+        return 0;
+    }
+    
+    r = r * 1103515245 + 12345;
+    return r % m;
 }
 
 void test4(const int mapWidth, const int mapHeight, const int mod, const int res) {
@@ -104,15 +107,17 @@ void test4(const int mapWidth, const int mapHeight, const int mod, const int res
     unsigned char* pMap = (unsigned char*) malloc(size * sizeof(char));
     int* pOutBuffer = (int*) malloc(size * sizeof(int));
     
-    int k, r = 0;
+    int k;
+    
+    rand(0);
+    printf("Generating map, mapWidth = %i, mapHeight = %i, pathLen = %i\n", mapWidth, mapHeight, res);
     for (k = 0; k < size; k++) {
-        pMap[k] = (r % mod == 1) ? 0 : 1;
-        r = r * 1103515245 + 12345;
+        pMap[k] = (rand(mod) == 1) ? 0 : 1;
     }
     pMap[1 + mapWidth] = 1;
     pMap[size - mapWidth - 2] = 1;
     
-    int len = findPathVerbose(1, 1, mapWidth - 2, mapHeight - 2, pMap, mapWidth, mapHeight, pOutBuffer, size);
+    int len = findPathVerbose(1, 1, mapWidth - 2, mapHeight - 2, pMap, mapWidth, mapHeight, pOutBuffer, size);    
     assert(len == res);
     
     free(pMap);
