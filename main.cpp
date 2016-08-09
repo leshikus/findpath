@@ -124,14 +124,46 @@ void test4(const int mapWidth, const int mapHeight, const int mod, const int res
     free(pOutBuffer);
 }
 
+void test5(const int mapWidth, const int mapHeight, const int mod, const int res) {
+    const int size = mapWidth * mapHeight;
+    
+    unsigned char* pMap = (unsigned char*) malloc(size * sizeof(char));
+    int* pOutBuffer = (int*) malloc(size * sizeof(int));
+    
+    int k;
+    
+    rand(0);
+    printf("Generating map, mapWidth = %i, mapHeight = %i, pathLen = %i\n", mapWidth, mapHeight, res);
+    for (k = 0; k < size; k++) {
+        pMap[k] = (rand(mod) == 1) ? 1 : 0;
+    }
+    
+    // made at least one path
+    int h = mapHeight / 2;
+    for (k = 1; k < mapWidth - 1; k++) pMap[mapWidth + k] = pMap[size - 2 * mapWidth + k] = pMap[h * mapWidth + k] = 1;
+    for (k = 1; k < h; k++) pMap[(k + 1) * mapWidth - 2] = pMap[(k + h) * mapWidth + 1] = 1;
+    
+    int len = findPathVerbose(1, 1, mapWidth - 2, mapHeight - 2, pMap, mapWidth, mapHeight, pOutBuffer, size);    
+    assert(len == res);
+    
+    free(pMap);
+    free(pOutBuffer);
+}
+
+
+
 int main()
 {
     test1();
     test2();
     test3();
     test4(20, 20, 8, 34);
+    test5(20, 20, 3, 68);
+
     test4(1000, 1000, 3, 1994);
+    test5(20000, 20000, 3, 79988);
     test4(20000, 20000, 3, 39994);
+    
     return 0;
 }
 

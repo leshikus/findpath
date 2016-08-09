@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "findpath.h"
 
-const int DEBUG = 0;
-const int STATS = 1;
 
 class Map {
 protected:
@@ -148,7 +147,7 @@ int FindPath(const int nStartX, const int nStartY,
     map.setEndpoints(nStartX, nStartY, nTargetX, nTargetY);
     
     int d, res = -1;
-    for (d = 2; d <= map.nWidth + map.nHeight; d++) {
+    for (d = 2; d <= map.nSize; d++) {
         int isAdded = map.addDist(d);
         if (map.isTargetFound) {
             if (d <= nOutBufferSize) map.fillPath(pOutBuffer, d);
